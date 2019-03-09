@@ -4,9 +4,9 @@
     <div class="">
         <form action="{{ url_for('home') }}" method="post">
             {{ form.csrf_token }}
-            <fieldset class="form-group">
-                <legend class="">Get Videos</legend>
-                <div class="form-group">
+            <fieldset class="">
+                <legend class="">Add videos from channel</legend>
+                <div class="">
                     {{ form.channelName.label(class="form-control-label") }}
                     {% if form.channelName.errors  %}
                         {{ form.channelName(class="form-control form-control-lg is-invalid") }}
@@ -34,7 +34,7 @@
                 </div>
 
             </fieldset>
-            <div class="form-group">
+            <div class="">
                 {{ form.submit(class="") }}
             </div>
         </form>

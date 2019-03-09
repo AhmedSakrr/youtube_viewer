@@ -25,14 +25,14 @@ class channelPlaylist:
     def __init__(self, user, maxResults=10):
         sourceObj = getUploadPlaylistFromUser(user, maxResults=maxResults)
         self.items = [sourceObj['items'][i]['contentDetails'] for i in range(len(sourceObj['items']))]
-        self.videoObjects = []
+        self.videoIDs = []
         for item in self.items:
-            self.videoObjects.append(ytVideo(item['videoId']))
+            self.videoIDs.append(item['videoId'])
 
     def __str__(self):
         output = ""
-        for video in self.videoObjects:
-            output += f"\n {video.videoID} - {video.publishedAt} \n"
+        for videoID in self.videoIDs:
+            output += f"\n {videoID} \n"
         return output
 
 def getUploadsIdFromUser(user):
@@ -66,11 +66,5 @@ def getVideosFromUser(user, maxVids=10):
 
 
 if __name__ == "__main__":
-    """
-    videos = getVideosFromUser('szyzyg', 3)
-    print(videos[0].properties)
-    print()
-    for v in videos:
-        #print(f"{v.publishedAt} - {v.title}\n{v.link}\n")
-        print(v)
-    """
+    playlist = channelPlaylist('hellogreedo')
+    print(playlist)

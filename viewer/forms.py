@@ -5,7 +5,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextA
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from viewer.models import Video
 
-class MySearchForm(FlaskForm):
+class SearchForm(FlaskForm):
     channelName = StringField('Enter channel/user name', validators=[DataRequired()])
     maxResults = IntegerField('Max Results', default=3)
     submit = SubmitField('Get Videos')

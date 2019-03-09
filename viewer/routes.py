@@ -6,7 +6,7 @@ from datetime import datetime
 from datetime import timezone
 from flask import render_template, url_for, flash, redirect, request
 from viewer import app, db
-from viewer.forms import MySearchForm #RegistrationForm, LoginForm, UpdateAccountForm, PostForm
+from viewer.forms import SearchForm #RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from viewer.models import Video #User, Post
 #from flask_login import login_user, current_user, logout_user, login_required
 from youtube import *
@@ -23,19 +23,20 @@ def utc_to_local(utc_dt_string):
 @app.route("/home", methods=['GET', 'POST'])
 def home():
     #videos = Video.query.all()
-    form = MySearchForm()
+    form = SearchForm()
     if form.validate_on_submit():
         print("VALIDATED")
-        videos = channelPlaylist(form.channelName.data, maxResults=form.maxResults.data).videoObjects
-        for v in videos:
-            if not Video.query.filter_by(title=v.title).first():
-                video = Video(title=v.title, channelName=v.channelTitle, videoUrl=v.url, description=v.description, publishedAt=utc_to_local(v.publishedAt))
+        videoIDs = channelPlaylist(form.channelName.data, maxResults=form.maxResults.data).videoIDs
+        nVideosAdded = 0
+        for videoID in videoIDs:
+            if not Video.query.filter_by(videoID=videoID).first():
+                v = ytVideo(videoID)
+                video = Video(title=v.title, channelName=v.channelTitle, videoUrl=v.url, videoID=v.videoID, description=v.description, publishedAt=utc_to_local(v.publishedAt))
                 db.session.add(video)
+                nVideosAdded += 1
         db.session.commit()
+        print(f"ADDED {nVideosAdded} VIDEO(S) TO DATABASE")
         return redirect(url_for('results'))
-    else:
-        print(form.channelName.data)
-        print("form did not validate")
 
     return render_template('home.html', form=form)
 
