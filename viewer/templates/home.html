@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="">
+        <form action="{{ url_for('home') }}" method="post">
+            {{ form.csrf_token }}
+            <fieldset class="form-group">
+                <legend class="">Get Videos</legend>
+                <div class="form-group">
+                    {{ form.channelName.label(class="form-control-label") }}
+                    {% if form.channelName.errors  %}
+                        {{ form.channelName(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.channelName.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.channelName(class="form-control form-control-lg") }}
+                    {% endif %}
+
+                    {{ form.maxResults.label(class="form-control-label") }}
+                    {% if form.maxResults.errors  %}
+                        {{ form.maxResults(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.maxResults.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.maxResults(class="form-control form-control-lg") }}
+                    {% endif %}
+
+                </div>
+
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="") }}
+            </div>
+        </form>
+    </div>
+{% endblock content %}

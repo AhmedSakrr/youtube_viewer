@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="">
+        <h2>Videos:</h2>
+        {% for video in videos %}
+            <a class="" href="#">{{ video.title }}</a>
+            <a class="" href="#">{{ video.channelName }}</a>  - {{ video.publishedAt }}
+            <p class="">{{ video.description }}</p>
+        {% endfor %}
+
+    </div>
+{% endblock content %}

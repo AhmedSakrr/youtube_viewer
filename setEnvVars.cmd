@@ -1,0 +1,2 @@
+SET FLASK_APP=runserver.py
+SET FLASK_DEBUG=1
