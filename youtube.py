@@ -2,54 +2,75 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
-API_KEY = "AIzaSyANWCxvIiHvHqEpUO83INHwg05vHRaNLQw"
+API_KEY = "AIzaSyCvJHk-N9s0sW5aP31d62tYgmHUSAi7FDI"
+
 base_video_url = 'https://www.youtube.com/watch?v='
 base_search_url = 'https://www.googleapis.com/youtube/v3/search?'
-
-channel_id = "UC_fsb-5q3QH-CXJ79YgrWfg"
-
-
-class Video():
-    def __init__(self, jsonObj):
-        self.__dict__ = jsonObj['snippet']
-        self.link = base_video_url + jsonObj['id']['videoId']
-        self.properties = set(self.__dict__.keys())
+base_channel_url = 'https://www.googleapis.com/youtube/v3/channels'
 
 
-def getChannelIdFromUser(user):
-    url = f"https://www.googleapis.com/youtube/v3/channels?part=snippet&forUsername={user}&key={API_KEY}"
+class ytVideo:
+    def __init__(self, videoID):
+        self.__dict__ = getVideoDetails(videoID)['snippet']
+        self.videoID = videoID
+        self.url = f"https://www.youtube.com/watch?v={self.videoID}"
+
+    def __str__(self):
+        output = ""
+        for key in self.__dict__.keys():
+            output += f"\n{key}: {self.__dict__[key]}\n"
+        return output
+
+class channelPlaylist:
+    def __init__(self, user, maxResults=10):
+        sourceObj = getUploadPlaylistFromUser(user, maxResults=maxResults)
+        self.items = [sourceObj['items'][i]['contentDetails'] for i in range(len(sourceObj['items']))]
+        self.videoObjects = []
+        for item in self.items:
+            self.videoObjects.append(ytVideo(item['videoId']))
+
+    def __str__(self):
+        output = ""
+        for video in self.videoObjects:
+            output += f"\n {video.videoID} - {video.publishedAt} \n"
+        return output
+
+def getUploadsIdFromUser(user):
+    url = f"https://www.googleapis.com/youtube/v3/channels?forUsername={user}&key={API_KEY}&part=contentDetails"
     source = requests.get(url).text
     sourceJson = json.loads(source)
-    return sourceJson['items'][0]['id']
+    uploadsID = sourceJson['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+    print(f"Found Uploads ID from user {user}: {uploadsID}")
+    return uploadsID
+
+def getUploadPlaylistFromUser(user, maxResults=10):
+    uploadsID = getUploadsIdFromUser(user)
+    url = f"https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId={uploadsID}&maxResults={maxResults}&key={API_KEY}"
+    source = requests.get(url).text
+    sourceJson = json.loads(source)
+    return sourceJson
+
+def getVideoDetails(videoID):
+    url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={videoID}&key={API_KEY}"
+    source = requests.get(url).text
+    sourceJson = json.loads(source)['items'][0]
+    return sourceJson
 
 
 def getVideosFromUser(user, maxVids=10):
     videos = []
 
-    channel_id = getChannelIdFromUser(user)
-    first_url = base_search_url + \
-        f'key={API_KEY}&channelId={channel_id}&part=snippet,id&order=date&maxResults={maxVids}'
-    url = first_url
-    while len(videos) < maxVids:
-        source = requests.get(url).text
-        sourceJson = json.loads(source)
-        for i in sourceJson['items']:
-            if i['id']['kind'] == "youtube#video":
-                # print(i['snippet']['title'])
-                videos.append(Video(i))
+    playlistObj = getUploadPlaylistFromUser(user)
 
-        """# Try to get next page
-        try:
-            next_page_token = sourceJson['nextPageToken']
-            url = first_url + f'&pageToken={next_page_token}'
-        except:
-            break"""
     return videos
 
 
 if __name__ == "__main__":
+    """
     videos = getVideosFromUser('szyzyg', 3)
     print(videos[0].properties)
     print()
     for v in videos:
-        print(f"{v.publishedAt} - {v.title}\n{v.link}\n")
+        #print(f"{v.publishedAt} - {v.title}\n{v.link}\n")
+        print(v)
+    """
