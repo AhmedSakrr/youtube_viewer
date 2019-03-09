@@ -4,8 +4,8 @@
     <div class="">
         <h2>Videos:</h2>
         {% for video in videos %}
-            <a class="" href="#">{{ video.title }}</a>
-            <a class="" href="#">{{ video.channelName }}</a>  - {{ video.publishedAt }}
+            <a class="" href="{{ video.videoUrl }}">{{ video.title }}</a><br>
+            {{ video.channelName }}  - {{ video.publishedAt }}
             <p class="">{{ video.description }}</p>
         {% endfor %}
 

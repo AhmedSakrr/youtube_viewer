@@ -1,6 +1,11 @@
 from datetime import datetime
 from viewer import db
 
+def utc_to_local(utc_dt_string):
+    utc_dt = datetime.strptime(utc_dt_string, "%Y-%m-%dT%H:%M:%S.%fZ")
+    local_dt = utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=None)
+    return datetime.strftime(local_dt, "%Y-%m-%d %I:%M %p")
+
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), unique=False, nullable=False)
