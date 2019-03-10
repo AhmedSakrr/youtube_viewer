@@ -23,12 +23,28 @@ def utc_to_local(utc_dt_string):
 def downloadThumbnail(videoID):
     url = f"https://i.ytimg.com/vi/{videoID}/hqdefault.jpg"
     picture_path = os.path.join(app.root_path, 'static/thumbnails', f"{videoID}.jpg")
-    print(f"Downloading image for {videoID} at {url}")
+    print(f"Downloading image for video {videoID} at {url}")
     img_data = requests.get(url).content
     with open(picture_path, 'wb') as handler:
         handler.write(img_data)
-    print(f"Image for {videoID} downloaded successfully")
+    print(f"Image for video {videoID} downloaded successfully")
     return url_for('static', filename='thumbnails/' + videoID + ".jpg")
+
+def downloadChannelImage(channelID, url):
+    picture_path = os.path.join(app.root_path, 'static/thumbnails', f"{channelID}.jpg")
+    if not os.path.exists(picture_path):
+        print(f"Downloading image for channel {channelID} at {url}")
+        img_data = requests.get(url).content
+        with open(picture_path, 'wb') as handler:
+            handler.write(img_data)
+        #output_size = (10, 10)
+        #i = Image.open(picture_path)
+        #i.thumbnail(output_size)
+        #i.save(picture_path)
+        print(f"Image for channel {channelID} downloaded successfully")
+    else:
+        print(f"Image for channel {channelID} already exists")
+    return url_for('static', filename='thumbnails/' + channelID + ".jpg")
 
 @app.route("/")
 @app.route("/home", methods=['GET', 'POST'])
@@ -36,25 +52,34 @@ def home():
     #videos = Video.query.all()
     form = SearchForm()
     if form.validate_on_submit():
-        print("VALIDATED")
-        videoIDs = channelPlaylist(form.channelName.data, maxResults=form.maxResults.data).videoIDs
+        channel = channelPlaylist(form.channelName.data, maxResults=form.maxResults.data, isUser=form.isUser.data)
+        print(channel.img_url)
+        videoIDs = channel.videoIDs
         nVideosAdded = 0
         for videoID in videoIDs:
             if not Video.query.filter_by(videoID=videoID).first():
                 v = ytVideo(videoID)
                 thumbnail = downloadThumbnail(videoID)
-                video = Video(title=v.title, channelName=v.channelTitle, videoUrl=v.url, videoID=v.videoID, image=thumbnail,description=v.description, publishedAt=utc_to_local(v.publishedAt))
+                channelImg = downloadChannelImage(v.channelId, channel.img_url)
+                video = Video(title=v.title, channelName=v.channelTitle, channelID=v.channelId, channelImg=channelImg, videoUrl=v.url, videoID=v.videoID, image=thumbnail,description=v.description, publishedAt=utc_to_local(v.publishedAt))
                 db.session.add(video)
                 nVideosAdded += 1
             else:
                 print(Video.query.filter_by(videoID=videoID).first().image)
         db.session.commit()
+        channelID = Video.query.filter_by(videoID=videoIDs[0]).first().channelID
         print(f"ADDED {nVideosAdded} VIDEO(S) TO DATABASE")
-        return redirect(url_for('results'))
+        return redirect(url_for('channel', channelID=channelID))
 
-    return render_template('home.html', form=form)
+    knownChannels = [{'channelName':v.channelName, 'channelID':v.channelID, 'channelImg':v.channelImg} for v in Video.query.group_by(Video.channelName)]
+    return render_template('home.html', form=form, knownChannels=knownChannels)
 
 @app.route("/results", methods=['GET', 'POST'])
 def results():
     videos = Video.query.all()
+    return render_template('results.html', videos=videos)
+
+@app.route("/channel/<channelID>")
+def channel(channelID):
+    videos = Video.query.filter_by(channelID=channelID).all()
     return render_template('results.html', videos=videos)

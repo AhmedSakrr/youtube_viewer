@@ -2,42 +2,57 @@
 
 {% block content %}
     <div class="">
-        <a href="{{ url_for('results') }}">Currently known</a>
+        <a href="{{ url_for('results') }}">All Videos</a>
+
+        <div class="">
+            <h3>Your Channels:</h3>
+            {% for channel in knownChannels %}
+                <!--<a href="{{ url_for('channel', channelID=channel['channelID']) }}">{{ channel['channelName'] }}</a><br>-->
+                <a href="{{ url_for('channel', channelID=channel['channelID']) }}">
+                    <img src="{{ channel['channelImg'] }}" alt="">
+                </a>
+            {% endfor %}
+        </div>
+
         <form action="{{ url_for('home') }}" method="post">
             {{ form.csrf_token }}
-            <fieldset class="">
-                <legend class="">Add videos from channel</legend>
-                <div class="">
-                    {{ form.channelName.label(class="form-control-label") }}
-                    {% if form.channelName.errors  %}
-                        {{ form.channelName(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.channelName.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.channelName(class="form-control form-control-lg") }}
-                    {% endif %}
+            <legend class=""><h3>Add channel</h3></legend>
+            <div class="">
+                {{ form.channelName.label(class="form-control-label") }}
+                {% if form.channelName.errors  %}
+                    {{ form.channelName(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.channelName.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.channelName(class="form-control form-control-lg") }}
+                {% endif %}
 
-                    {{ form.maxResults.label(class="form-control-label") }}
-                    {% if form.maxResults.errors  %}
-                        {{ form.maxResults(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.maxResults.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.maxResults(class="form-control form-control-lg") }}
-                    {% endif %}
+                {{ form.maxResults.label(class="form-control-label") }}
+                {% if form.maxResults.errors  %}
+                    {{ form.maxResults(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.maxResults.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.maxResults(class="form-control form-control-lg") }}
+                {% endif %}
 
-                </div>
+                {{ form.isUser(class="") }}
+                {{ form.isUser.label(class="") }}
 
-            </fieldset>
+            </div>
             <div class="">
                 {{ form.submit(class="") }}
             </div>
+
         </form>
+
+
+
     </div>
 {% endblock content %}

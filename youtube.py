@@ -26,9 +26,9 @@ class ytVideo:
         return output
 
 class channelPlaylist:
-    def __init__(self, user, maxResults=10):
-        sourceObj = getUploadPlaylistFromUser(user, maxResults=maxResults)
-        self.items = [sourceObj['items'][i]['contentDetails'] for i in range(len(sourceObj['items']))]
+    def __init__(self, identifier, maxResults=10, isUser=True):
+        self.sourceObj, self.img_url = getUploadPlaylist(identifier, maxResults=maxResults, isUser=isUser)
+        self.items = [self.sourceObj['items'][i]['contentDetails'] for i in range(len(self.sourceObj['items']))]
         self.videoIDs = []
         for item in self.items:
             self.videoIDs.append(item['videoId'])
@@ -40,19 +40,32 @@ class channelPlaylist:
         return output
 
 def getUploadsIdFromUser(user):
-    url = f"https://www.googleapis.com/youtube/v3/channels?forUsername={user}&key={API_KEY}&part=contentDetails"
+    url = f"https://www.googleapis.com/youtube/v3/channels?forUsername={user}&key={API_KEY}&part=contentDetails,snippet"
     source = requests.get(url).text
     sourceJson = json.loads(source)
     uploadsID = sourceJson['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+    img_url = sourceJson['items'][0]['snippet']['thumbnails']['default']['url']
     print(f"Found Uploads ID from user {user}: {uploadsID}")
-    return uploadsID
+    return uploadsID, img_url
 
-def getUploadPlaylistFromUser(user, maxResults=10):
-    uploadsID = getUploadsIdFromUser(user)
+def getUploadsIdFromChannelID(channelID):
+    url = f"https://www.googleapis.com/youtube/v3/channels?id={channelID}&key={API_KEY}&part=contentDetails,snippet"
+    source = requests.get(url).text
+    sourceJson = json.loads(source)
+    uploadsID = sourceJson['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+    img_url = sourceJson['items'][0]['snippet']['thumbnails']['default']['url']
+    print(f"Found Uploads ID from channelID {channelID}: {uploadsID}")
+    return uploadsID, img_url
+
+def getUploadPlaylist(identifier, isUser=True, maxResults=10):
+    if isUser:
+        uploadsID, img_url = getUploadsIdFromUser(identifier)
+    else:
+        uploadsID, img_url = getUploadsIdFromChannelID(identifier)
     url = f"https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId={uploadsID}&maxResults={maxResults}&key={API_KEY}"
     source = requests.get(url).text
     sourceJson = json.loads(source)
-    return sourceJson
+    return sourceJson, img_url
 
 def getVideoDetails(videoID):
     url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={videoID}&key={API_KEY}"
@@ -62,5 +75,5 @@ def getVideoDetails(videoID):
 
 
 if __name__ == "__main__":
-    video = getVideoDetails("ghQ9O3bp6y0")
-    pp.pprint(video)
+    uploads = getUploadsIdFromUser('hellogreedo')
+    pp.pprint(uploads)
