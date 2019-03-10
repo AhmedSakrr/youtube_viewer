@@ -5,9 +5,11 @@
     <div class="">
         <h2>Videos:</h2>
         {% for video in videos %}
-            <a class="" href="{{ video.videoUrl }}">{{ video.title }}</a><br>
+            <a class="" href="{{ video.videoUrl }}" target=”_blank”>{{ video.title }}</a><br>
             {{ video.channelName }}  - {{ video.publishedAt }}<br>
-            <img src="{{ video.image }}" alt="">
+            <a href="{{ video.videoUrl }}" target=”_blank”>
+                <img src="{{ video.image }}" alt="">
+            </a>
             <p class="">{{ video.description }}</p>
         {% endfor %}
 
