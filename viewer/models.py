@@ -13,8 +13,7 @@ class Video(db.Model):
     publishedAt = db.Column(db.String(20), unique=False, nullable=False)
     videoID = db.Column(db.String(20), unique=False, nullable=False)
     videoUrl = db.Column(db.String(50), unique=False, nullable=False)
-    #thumbnails = db.Column(db.String(20), nullable=False, default='default.jpg')
-    description = db.Column(db.String(5000))
-
+    image = db.Column(db.String(60), unique=False, nullable=True, default="")
+    description = db.Column(db.String(1000))
     def __repr__(self):
-        return f"Video('{self.title}', {self.videoID}, '{self.channelName}')"
+        return f"Video('{self.title}', {self.videoID}, '{self.channelName}, {self.image}')"

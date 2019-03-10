@@ -6,7 +6,8 @@
         <h2>Videos:</h2>
         {% for video in videos %}
             <a class="" href="{{ video.videoUrl }}">{{ video.title }}</a><br>
-            {{ video.channelName }}  - {{ video.publishedAt }}
+            {{ video.channelName }}  - {{ video.publishedAt }}<br>
+            <img src="{{ video.image }}" alt="">
             <p class="">{{ video.description }}</p>
         {% endfor %}
 

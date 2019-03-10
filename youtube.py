@@ -1,6 +1,9 @@
 import requests
 import json
 from bs4 import BeautifulSoup
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
 
 API_KEY = "AIzaSyCvJHk-N9s0sW5aP31d62tYgmHUSAi7FDI"
 
@@ -14,6 +17,7 @@ class ytVideo:
         self.__dict__ = getVideoDetails(videoID)['snippet']
         self.videoID = videoID
         self.url = f"https://www.youtube.com/watch?v={self.videoID}"
+        self.image = f"https://i.ytimg.com/vi/{self.videoID}/hqdefault.jpg"
 
     def __str__(self):
         output = ""
@@ -57,14 +61,6 @@ def getVideoDetails(videoID):
     return sourceJson
 
 
-def getVideosFromUser(user, maxVids=10):
-    videos = []
-
-    playlistObj = getUploadPlaylistFromUser(user)
-
-    return videos
-
-
 if __name__ == "__main__":
-    playlist = channelPlaylist('hellogreedo')
-    print(playlist)
+    video = getVideoDetails("ghQ9O3bp6y0")
+    pp.pprint(video)
