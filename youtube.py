@@ -3,9 +3,11 @@ import json
 from bs4 import BeautifulSoup
 import pprint
 
+from ytapi import API_KEY
+
 pp = pprint.PrettyPrinter(indent=4)
 
-API_KEY = "AIzaSyCvJHk-N9s0sW5aP31d62tYgmHUSAi7FDI"
+
 
 base_video_url = 'https://www.youtube.com/watch?v='
 base_search_url = 'https://www.googleapis.com/youtube/v3/search?'
