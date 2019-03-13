@@ -3,14 +3,28 @@
 {% block content %}
     <a href="{{ url_for('home') }}">Home</a>
     <div class="">
-        <h2>Videos:</h2>
+        {% if allChannels %}
+            <h2>All Videos:</h2>
+        {% else %}
+            <h2>Videos for {{ videos[0].channelName }}:</h2>
+            <p>
+                <a href="{{ url_for('delete_channel', channelID=videos[0].channelID) }}">Delete this channel</a>
+            </p>
+
+        {% endif %}
+
         {% for video in videos %}
             <a class="" href="{{ video.videoUrl }}" target=”_blank”>{{ video.title }}</a><br>
             {{ video.channelName }}  - {{ video.publishedAt }}<br>
             <a href="{{ video.videoUrl }}" target=”_blank”>
                 <img src="{{ video.image }}" alt="">
             </a>
-            <p class="">{{ video.description }}</p>
+            <div class="">
+                {% for line in video.description.splitlines() %}
+                    {{line}}<br>
+                {% endfor %}
+            </div>
+            <br>
         {% endfor %}
 
     </div>
