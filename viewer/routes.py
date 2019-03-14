@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append('..')
 
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, session
 from viewer import app, db
 from viewer.forms import SearchForm #RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from viewer.models import Video #User, Post
@@ -26,6 +26,7 @@ def deleteThumbnail(identifier):
 def home():
     #videos = Video.query.all()
     form = SearchForm()
+    session['maxResults'] = form.maxResults.data
     if form.validate_on_submit():
         channel = channelPlaylist(form.channelName.data, maxResults=form.maxResults.data, isUser=form.isUser.data)
         videoIDs = channel.videoIDs
@@ -45,8 +46,8 @@ def results():
 
 @app.route("/channel/<channelID>")
 def channel(channelID):
-
-    channel = channelPlaylist(channelID, maxResults=5, isUser=False)
+    print("MAX RESULTS: ", session.get('maxResults', None))
+    channel = channelPlaylist(channelID, maxResults=session.get('maxResults', None), isUser=False)
     videoIDs = channel.videoIDs
     nVideosAdded = storeVideoInfoForChannel(channel)
     channelID = Video.query.filter_by(videoID=videoIDs[0]).first().channelID

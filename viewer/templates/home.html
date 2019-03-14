@@ -9,7 +9,7 @@
             <h3>Your Channels:</h3>
             {% for channel in knownChannels %}
                 <!--<a href="{{ url_for('channel', channelID=channel['channelID']) }}">{{ channel['channelName'] }}</a><br>-->
-                <a href="{{ url_for('channel', channelID=channel['channelID']) }}">
+                <a href="{{ url_for('channel', channelID=channel['channelID'], maxResults=session.get('maxResults', None)) }}">
                     <img src="{{ channel['channelImg'] }}" alt="">
                 </a>
             {% endfor %}
