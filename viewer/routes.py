@@ -14,7 +14,13 @@ from youtubeUtils import channelPlaylist
 #videos = []
 
 
-
+def deleteThumbnail(identifier):
+    image_path = os.path.abspath(f"viewer/static/thumbnails/{identifier}.jpg")
+    if os.path.isfile(image_path):
+        print(f"DELETING {image_path}")
+        os.remove(image_path)
+    else:
+        pass
 
 @app.route("/")
 @app.route("/home", methods=['GET', 'POST'])
@@ -59,7 +65,10 @@ def delete_channel(channelID):
         abort(404)
     else:
         channelName = videos[0].channelName
+        channelID = videos[0].channelID
+        deleteThumbnail(channelID)
         for video in videos:
+            deleteThumbnail(video.videoID)
             db.session.delete(video)
         db.session.commit()
         flash(f"Channel {channelName} has been deleted", 'success')
@@ -72,6 +81,8 @@ def delete_results():
         abort(404)
     else:
         for video in videos:
+            deleteThumbnail(video.channelID)
+            deleteThumbnail(video.videoID)
             db.session.delete(video)
         db.session.commit()
         flash(f"All channels have been deleted", 'success')
