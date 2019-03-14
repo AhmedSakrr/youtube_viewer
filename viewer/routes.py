@@ -17,7 +17,6 @@ from youtubeUtils import channelPlaylist
 def deleteThumbnail(identifier):
     image_path = os.path.abspath(f"viewer/static/thumbnails/{identifier}.jpg")
     if os.path.isfile(image_path):
-        print(f"DELETING {image_path}")
         os.remove(image_path)
     else:
         pass
@@ -55,8 +54,25 @@ def channel(channelID):
 
     videos = Video.query.filter_by(channelID=channelID).all()
     videos.sort(key=lambda v: v.publishedAt, reverse=True)
-    print(videos[0].channelName)
+
     return render_template('results.html', videos=videos, allChannels=False)
+
+@app.route("/channel/<channelID>/<videoID>", methods=['GET','POST'])
+def watch_video_mpv(channelID, videoID):
+    video = Video.query.filter_by(videoID=videoID).first()
+    mpv_success = video.play_mpv()
+    if mpv_success:
+        flash(f"Playing {video.title} from channel {video.channelName} in terminal with MPV", 'info')
+    else:
+        flash(f"Failed to play {video.title} from channel {video.channelName} with MPV", 'info')
+    return redirect(url_for('channel', channelID=channelID))
+
+@app.route("/channel/<channelID>/<videoID>/kill", methods=['GET','POST'])
+def kill_video_mpv(channelID, videoID):
+    video = Video.query.filter_by(videoID=videoID).first()
+    if video.status() == True:
+        video.kill_mpv()
+    return redirect(url_for('channel', channelID=channelID))
 
 @app.route("/channel/<channelID>/delete", methods=['GET','POST'])
 def delete_channel(channelID):

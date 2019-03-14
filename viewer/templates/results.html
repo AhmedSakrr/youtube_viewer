@@ -14,12 +14,17 @@
         {% endif %}
 
         {% for video in videos %}
-            <a class="" href="{{ video.videoUrl }}" target=”_blank”>{{ video.title }}</a><br>
+            <a href="{{ url_for('watch_video_mpv', channelID=videos[0].channelID, videoID=video.videoID) }}" target=”_blank”>{{ video.title }}</a><br>
             {{ video.channelName }}  - {{ video.publishedAt }}<br>
-            <a href="{{ video.videoUrl }}" target=”_blank”>
+            <a href="{{ url_for('watch_video_mpv', channelID=videos[0].channelID, videoID=video.videoID) }}">
                 <img src="{{ video.image }}" alt="">
             </a>
             <div class="">
+
+                {% if video.status() %}
+                    <b>Currently Playing - </b> <a href="{{ url_for('kill_video_mpv', channelID=videos[0].channelID, videoID=video.videoID) }}">Stop Playing</a><br>
+
+                {% endif %}
                 {% for line in video.description.splitlines() %}
                     {{line}}<br>
                 {% endfor %}
