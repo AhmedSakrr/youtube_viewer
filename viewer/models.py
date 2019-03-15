@@ -28,7 +28,7 @@ class Video(db.Model):
     def play_mpv(self):
         try:
             #os.system(f"mpv {self.videoUrl} &")
-            mpvProcess = subprocess.Popen(['mpv', self.videoUrl, '&'], shell=False)
+            mpvProcess = subprocess.Popen(['setsid','mpv', self.videoUrl, '&'], shell=False)
             self.mpvPid = mpvProcess.pid
             db.session.commit()
             return True
