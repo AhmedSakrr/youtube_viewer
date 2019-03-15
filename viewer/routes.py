@@ -7,19 +7,15 @@ from viewer import app, db
 from viewer.forms import SearchForm #RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from viewer.models import Video #User, Post
 #from flask_login import login_user, current_user, logout_user, login_required
-from viewer.serverUtils import utc_to_local, downloadThumbnail, downloadChannelImage, storeVideoInfoForChannel
+from viewer.serverUtils import utc_to_local, downloadThumbnail, downloadChannelImage, storeVideoInfoForChannel, deleteThumbnail, downloadVideo
 from youtubeUtils import channelPlaylist
+
 
 #global videos
 #videos = []
 
 
-def deleteThumbnail(identifier):
-    image_path = os.path.abspath(f"viewer/static/thumbnails/{identifier}.jpg")
-    if os.path.isfile(image_path):
-        os.remove(image_path)
-    else:
-        pass
+
 
 @app.route("/")
 @app.route("/home", methods=['GET', 'POST'])
@@ -73,6 +69,14 @@ def kill_video_mpv(channelID, videoID):
     video = Video.query.filter_by(videoID=videoID).first()
     if video.status() == True:
         video.kill_mpv()
+    return redirect(url_for('channel', channelID=channelID))
+
+@app.route("/channel/<channelID>/<videoID>/download", methods=['GET','POST'])
+def download_video(channelID, videoID):
+    video = Video.query.filter_by(videoID=videoID).first()
+    mp4file = downloadVideo(video.videoUrl, video.title)
+    video.mp4file = mp4file
+    db.session.commit()
     return redirect(url_for('channel', channelID=channelID))
 
 @app.route("/channel/<channelID>/delete", methods=['GET','POST'])

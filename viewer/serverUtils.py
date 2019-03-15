@@ -8,6 +8,7 @@ from flask import url_for
 from viewer import app, db
 from viewer.models import Video
 from youtubeUtils import ytVideo
+from pytube import YouTube
 
 def utc_to_local(utc_dt_string):
     utc_dt = datetime.strptime(utc_dt_string, "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -52,3 +53,36 @@ def storeVideoInfoForChannel(channel):
             nVideosAdded += 1
     db.session.commit()
     return nVideosAdded
+
+def deleteThumbnail(identifier):
+    image_path = os.path.abspath(f"viewer/static/thumbnails/{identifier}.jpg")
+    if os.path.isfile(image_path):
+        os.remove(image_path)
+    else:
+        pass
+
+def videoDownloadComplete(stream, file_handle):
+    print("\nDOWNLOAD COMPLETE")
+    return True
+
+def showVideoDownloadProgress(stream, chunk, file_handle, bytes_remaining):
+    fraction_complete = 1 - (float(bytes_remaining) / stream.filesize)
+    percent_complete = int(100*fraction_complete)
+    print(f"{percent_complete}% Complete", end='\r')
+
+def downloadVideo(url, videoTitle):
+    video_directory = os.path.join(app.root_path, 'static/videos/')
+    video_filename = ''.join(char for char in videoTitle if char.isalnum()) + '.mp4'
+    if not os.path.exists(video_directory + video_filename):
+        print(f"DOWNLOADING VIDEO {video_filename}")
+        yt = YouTube(url)
+        yt.register_on_complete_callback(videoDownloadComplete)
+        yt.register_on_progress_callback(showVideoDownloadProgress)
+        ytvideo = yt.streams.first()
+        ytvideo.download(output_path=video_directory, filename=video_filename)
+        return video_directory + video_filename
+    else:
+        print("VIDEO {video_filename} ALREADY EXISTS")
+        Video.query.filter_by(title=videoTitle).first().mp4file = video_directory + video_filename
+        db.session.commit()
+        return video_directory + video_filename

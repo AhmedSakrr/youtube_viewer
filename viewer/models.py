@@ -19,6 +19,7 @@ class Video(db.Model):
     videoID = db.Column(db.String(20), unique=False, nullable=False)
     videoUrl = db.Column(db.String(50), unique=False, nullable=False)
     image = db.Column(db.String(60), unique=False, nullable=True, default="")
+    mp4file = db.Column(db.String(100), unique=False, nullable=True, default="")
     description = db.Column(db.String(1000))
     mpvPid = db.Column(db.Integer, default=0)
 
@@ -27,8 +28,12 @@ class Video(db.Model):
 
     def play_mpv(self):
         try:
-            #os.system(f"mpv {self.videoUrl} &")
-            mpvProcess = subprocess.Popen(['setsid','mpv', self.videoUrl, '&'], shell=False)
+            if self.mp4file == "":
+                print("playing from url")
+                mpvProcess = subprocess.Popen(['setsid','mpv', self.videoUrl, '&'], shell=False)
+            else:
+                print("playing from file")
+                mpvProcess = subprocess.Popen(['setsid','mpv', self.mp4file, '&'], shell=False)
             self.mpvPid = mpvProcess.pid
             db.session.commit()
             return True

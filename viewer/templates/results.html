@@ -15,7 +15,12 @@
 
         {% for video in videos %}
             <a href="{{ url_for('watch_video_mpv', channelID=videos[0].channelID, videoID=video.videoID) }}" target=”_blank”>{{ video.title }}</a><br>
-            {{ video.channelName }}  - {{ video.publishedAt }}<br>
+            {% if video.mp4file != "" %}
+                {{ video.channelName }} - {{ video.publishedAt }} - Downloaded! <br>
+            {% else %}
+                {{ video.channelName }} - {{ video.publishedAt }} - <a href="{{ url_for('download_video', channelID=videos[0].channelID, videoID=video.videoID) }}">Download</a><br>
+            {% endif %}
+
             <a href="{{ url_for('watch_video_mpv', channelID=videos[0].channelID, videoID=video.videoID) }}">
                 <img src="{{ video.image }}" alt="">
             </a>
