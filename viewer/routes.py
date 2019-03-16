@@ -67,6 +67,7 @@ def watch_video_mpv(channelID, videoID):
 @app.route("/channel/<channelID>/<videoID>/kill", methods=['GET','POST'])
 def kill_video_mpv(channelID, videoID):
     video = Video.query.filter_by(videoID=videoID).first()
+    print(video.status())
     if video.status() == True:
         video.kill_mpv()
     return redirect(url_for('channel', channelID=channelID))

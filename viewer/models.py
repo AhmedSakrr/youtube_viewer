@@ -1,8 +1,13 @@
 from datetime import datetime
 from viewer import db
 import os
+import sys
+import platform
 import subprocess
 import psutil
+
+#if platform.system() == 'Windows':
+#    sys.path.append("C:\\mpv\\")
 
 def utc_to_local(utc_dt_string):
     utc_dt = datetime.strptime(utc_dt_string, "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -21,7 +26,7 @@ class Video(db.Model):
     image = db.Column(db.String(60), unique=False, nullable=True, default="")
     mp4file = db.Column(db.String(100), unique=False, nullable=True, default="")
     description = db.Column(db.String(1000))
-    mpvPid = db.Column(db.Integer, default=0)
+    mpvPid = db.Column(db.Integer, default=-1)
 
     def __repr__(self):
         return f"Video('{self.title}', '{self.videoID}', '{self.channelName}', '{self.image}')"
@@ -30,10 +35,16 @@ class Video(db.Model):
         try:
             if self.mp4file == "":
                 print("playing from url")
-                mpvProcess = subprocess.Popen(['setsid','mpv', self.videoUrl, '&'], shell=False)
+                if platform.system() != 'Windows':
+                    mpvProcess = subprocess.Popen(['setsid','mpv', self.videoUrl, '&'], shell=False)
+                else:
+                    mpvProcess = subprocess.Popen(['start','C:\\mpv\\mpv.exe', self.videoUrl], shell=True)
             else:
                 print("playing from file")
-                mpvProcess = subprocess.Popen(['setsid','mpv', self.mp4file, '&'], shell=False)
+                if platform.system() != 'Windows':
+                    mpvProcess = subprocess.Popen(['setsid','mpv', self.mp4file, '&'], shell=False)
+                else:
+                    mpvProcess = subprocess.Popen(['start', 'C:\\mpv\\mpv.exe', self.mp4file], shell=True)
             self.mpvPid = mpvProcess.pid
             db.session.commit()
             return True
@@ -61,7 +72,7 @@ class Video(db.Model):
             p = psutil.Process(self.mpvPid)
             status = p.status()
             if status == 'zombie':
-                self.mpvPid = 0
+                self.mpvPid = -1
                 db.session.commit()
                 return False
             else:
