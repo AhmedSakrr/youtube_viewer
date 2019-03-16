@@ -72,7 +72,7 @@ def showVideoDownloadProgress(stream, chunk, file_handle, bytes_remaining):
 
 def downloadVideo(url, videoTitle):
     video_directory = os.path.join(app.root_path, 'static/videos/')
-    video_filename = ''.join(char for char in videoTitle if char.isalnum()) + '.mp4'
+    video_filename = ''.join(char for char in videoTitle if char.isalnum())# + '.mp4'
     if not os.path.exists(video_directory + video_filename):
         print(f"DOWNLOADING VIDEO {video_filename}")
         yt = YouTube(url)
@@ -80,9 +80,9 @@ def downloadVideo(url, videoTitle):
         yt.register_on_progress_callback(showVideoDownloadProgress)
         ytvideo = yt.streams.first()
         ytvideo.download(output_path=video_directory, filename=video_filename)
-        return video_directory + video_filename
+        return video_directory + video_filename + '.mp4'
     else:
         print("VIDEO {video_filename} ALREADY EXISTS")
         Video.query.filter_by(title=videoTitle).first().mp4file = video_directory + video_filename
         db.session.commit()
-        return video_directory + video_filename
+        return video_directory + video_filename + '.mp4'
