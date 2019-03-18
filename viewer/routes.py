@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append('..')
 
-from flask import render_template, url_for, flash, redirect, request, session
+from flask import render_template, url_for, flash, redirect, request, session, abort
 from viewer import app, db
 from viewer.forms import SearchForm #RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from viewer.models import Video #User, Post

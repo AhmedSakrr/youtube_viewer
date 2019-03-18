@@ -3,8 +3,10 @@
     <head>
         <meta charset="utf-8">
         <title>Youtube Viewer</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='layout.css') }}">
     </head>
     <body>
+        {% include 'header.html' %}
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}

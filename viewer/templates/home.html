@@ -2,10 +2,11 @@
 
 {% block content %}
     <div class="">
-        <a href="{{ url_for('results') }}">All Videos</a>
-        <a href="{{ url_for('delete_results') }}">Delete all channels</a>
-
         <div class="">
+            <a href="{{ url_for('results') }}">All Videos</a>
+            <a href="{{ url_for('delete_results') }}">Delete all channels</a>
+        </div>
+        <div id="channels" class="">
             <h3>Your Channels:</h3>
             {% for channel in knownChannels %}
                 <!--<a href="{{ url_for('channel', channelID=channel['channelID']) }}">{{ channel['channelName'] }}</a><br>-->
