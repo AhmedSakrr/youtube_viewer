@@ -9,5 +9,4 @@ from viewer.models import Video
 class SearchForm(FlaskForm):
     channelName = StringField('Channel name or ID:', validators=[DataRequired()])
     maxResults = IntegerField('# Videos: ', default=3)
-    isUser = BooleanField('username', default=True)
     submit = SubmitField('Add')

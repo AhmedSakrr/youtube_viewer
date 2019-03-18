@@ -24,7 +24,7 @@ def home():
     form = SearchForm()
     session['maxResults'] = form.maxResults.data
     if form.validate_on_submit():
-        channel = channelPlaylist(form.channelName.data, maxResults=form.maxResults.data, isUser=form.isUser.data)
+        channel = channelPlaylist(form.channelName.data, maxResults=form.maxResults.data)
         videoIDs = channel.videoIDs
         nVideosAdded = storeVideoInfoForChannel(channel)
         channelID = Video.query.filter_by(videoID=videoIDs[0]).first().channelID
@@ -43,7 +43,7 @@ def results():
 @app.route("/channel/<channelID>")
 def channel(channelID):
     print("MAX RESULTS: ", session.get('maxResults', None))
-    channel = channelPlaylist(channelID, maxResults=session.get('maxResults', None), isUser=False)
+    channel = channelPlaylist(channelID, maxResults=session.get('maxResults', None))
     videoIDs = channel.videoIDs
     nVideosAdded = storeVideoInfoForChannel(channel)
     channelID = Video.query.filter_by(videoID=videoIDs[0]).first().channelID

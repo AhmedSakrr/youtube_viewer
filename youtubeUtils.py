@@ -2,6 +2,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import pprint
+import string
 
 from ytapi import API_KEY
 
@@ -28,8 +29,8 @@ class ytVideo:
         return output
 
 class channelPlaylist:
-    def __init__(self, identifier, maxResults=10, isUser=True):
-        self.sourceObj, self.img_url = getUploadPlaylist(identifier, maxResults=maxResults, isUser=isUser)
+    def __init__(self, identifier, maxResults=10):
+        self.sourceObj, self.img_url = getUploadPlaylist(identifier, maxResults=maxResults)
         self.items = [self.sourceObj['items'][i]['contentDetails'] for i in range(len(self.sourceObj['items']))]
         self.videoIDs = []
         for item in self.items:
@@ -40,6 +41,12 @@ class channelPlaylist:
         for videoID in self.videoIDs:
             output += f"\n {videoID} \n"
         return output
+
+
+def isUser(identifier):
+    identifier = set(identifier)
+    invalidUserChars = string.punctuation
+    return not any(char in invalidUserChars for char in identifier)
 
 def getUploadsIdFromUser(user):
     url = f"https://www.googleapis.com/youtube/v3/channels?forUsername={user}&key={API_KEY}&part=contentDetails,snippet"
@@ -59,8 +66,9 @@ def getUploadsIdFromChannelID(channelID):
     print(f"Found Uploads ID from channelID {channelID}: {uploadsID}")
     return uploadsID, img_url
 
-def getUploadPlaylist(identifier, isUser=True, maxResults=10):
-    if isUser:
+def getUploadPlaylist(identifier, maxResults=10):
+    is_user = isUser(identifier)
+    if is_user:
         uploadsID, img_url = getUploadsIdFromUser(identifier)
     else:
         uploadsID, img_url = getUploadsIdFromChannelID(identifier)
@@ -77,5 +85,20 @@ def getVideoDetails(videoID):
 
 
 if __name__ == "__main__":
-    uploads = getUploadsIdFromUser('hellogreedo')
-    pp.pprint(uploads)
+    import time
+    test_string = 'UC_fsb-5q3QH-CXJ79YgrWfg'
+    N = 1000000
+    t_start = time.perf_counter()
+    for i in range(N):
+        print(isUser(test_string))
+    t_end = time.perf_counter()
+    t1 = t_end - t_start
+
+    t_start = time.perf_counter()
+    for i in range(N):
+        print(isUser2(test_string))
+    t_end = time.perf_counter()
+    t2 = t_end - t_start
+
+    print(f"isUser  ran in {1000*t1} milliseconds")
+    print(f"isUser2 ran in {1000*t2} milliseconds")
