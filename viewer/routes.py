@@ -8,7 +8,7 @@ from viewer.forms import SearchForm #RegistrationForm, LoginForm, UpdateAccountF
 from viewer.models import Video #User, Post
 #from flask_login import login_user, current_user, logout_user, login_required
 from viewer.serverUtils import utc_to_local, downloadThumbnail, downloadChannelImage, storeVideoInfoForChannel, deleteThumbnail, downloadVideo
-from youtubeUtils import channelPlaylist
+from youtubeUtils import channelPlaylist, ytVideo
 
 
 #global videos
@@ -46,11 +46,16 @@ def channel(channelID):
     channel = channelPlaylist(channelID, maxResults=session.get('maxResults', None))
     videoIDs = channel.videoIDs
     nVideosAdded = storeVideoInfoForChannel(channel)
-    channelID = Video.query.filter_by(videoID=videoIDs[0]).first().channelID
     print(f"ADDED {nVideosAdded} VIDEO(S) TO DATABASE")
-
-    videos = Video.query.filter_by(channelID=channelID).all()
-    videos.sort(key=lambda v: v.publishedAt, reverse=True)
+    if len(videoIDs) > 0:
+        channelID = Video.query.filter_by(videoID=videoIDs[0]).first().channelID
+        videos = Video.query.filter_by(channelID=channelID).all()
+        videos.sort(key=lambda v: v.publishedAt, reverse=True)
+    else:
+        v = ytVideo("dQw4w9WgXcQ")
+        thumbnail = downloadThumbnail("dQw4w9WgXcQ")
+        channelImg = downloadThumbnail("dQw4w9WgXcQ")
+        videos = [Video(title=v.title, channelName=v.channelTitle, channelID=v.channelId, channelImg=channelImg, videoUrl=v.url, videoID=v.videoID, image=thumbnail, description=v.description, publishedAt=utc_to_local(v.publishedAt))]
 
     return render_template('results.html', videos=videos, allChannels=False)
 

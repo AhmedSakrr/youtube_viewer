@@ -1,25 +1,23 @@
-/* HEADER */
-.header {
-    position:relative;
-    top:0;
-    left:0;
-}
-
-.header h1 {
-    font-size:2rem;
-}
-
-.header p {
-    font-size:1rem;
-}
-
 /* GENERAL LAYOUT */
 
 .alert {
     font-size:1.5rem;
     margin-top: 1rem;
     margin-bottom: 1rem;
+}
+
+.alert-success {
+    color: green;
+}
+
+.alert-info {
+    color: cyan;
+}
+
+.alert-danger {
     color: red;
 }
 
-/* HOME */
+.body {
+    
+}

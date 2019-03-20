@@ -31,10 +31,16 @@ class ytVideo:
 class channelPlaylist:
     def __init__(self, identifier, maxResults=10):
         self.sourceObj, self.img_url = getUploadPlaylist(identifier, maxResults=maxResults)
-        self.items = [self.sourceObj['items'][i]['contentDetails'] for i in range(len(self.sourceObj['items']))]
-        self.videoIDs = []
-        for item in self.items:
-            self.videoIDs.append(item['videoId'])
+        if self.sourceObj:
+            self.items = [self.sourceObj['items'][i]['contentDetails'] for i in range(len(self.sourceObj['items']))]
+            self.videoIDs = []
+            for item in self.items:
+                self.videoIDs.append(item['videoId'])
+        else:
+            self.items = []
+            self.videoIDs = []
+            for item in self.items:
+                self.videoIDs.append(item['videoId'])
 
     def __str__(self):
         output = ""
@@ -44,38 +50,56 @@ class channelPlaylist:
 
 
 def isUser(identifier):
+    identifier_unaltered = identifier
     identifier = set(identifier)
     invalidUserChars = string.punctuation
-    return not any(char in invalidUserChars for char in identifier)
+    no_invalid_chars = (not any(char in invalidUserChars for char in identifier))
+    not_channelID_length = not (len(identifier_unaltered) == 24)
+    return (no_invalid_chars and not_channelID_length)
 
 def getUploadsIdFromUser(user):
     url = f"https://www.googleapis.com/youtube/v3/channels?forUsername={user}&key={API_KEY}&part=contentDetails,snippet"
     source = requests.get(url).text
     sourceJson = json.loads(source)
-    uploadsID = sourceJson['items'][0]['contentDetails']['relatedPlaylists']['uploads']
-    img_url = sourceJson['items'][0]['snippet']['thumbnails']['default']['url']
-    print(f"Found Uploads ID from user {user}: {uploadsID}")
-    return uploadsID, img_url
+    try:
+        uploadsID = sourceJson['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+        img_url = sourceJson['items'][0]['snippet']['thumbnails']['default']['url']
+        print(f"Found Uploads ID from user {user}: {uploadsID}")
+        return uploadsID, img_url
+    except IndexError:
+        print(f"Could Not Find User {user}")
+        pp.pprint(sourceJson)
+        return None, None
 
 def getUploadsIdFromChannelID(channelID):
     url = f"https://www.googleapis.com/youtube/v3/channels?id={channelID}&key={API_KEY}&part=contentDetails,snippet"
     source = requests.get(url).text
     sourceJson = json.loads(source)
-    uploadsID = sourceJson['items'][0]['contentDetails']['relatedPlaylists']['uploads']
-    img_url = sourceJson['items'][0]['snippet']['thumbnails']['default']['url']
-    print(f"Found Uploads ID from channelID {channelID}: {uploadsID}")
-    return uploadsID, img_url
+    try:
+        uploadsID = sourceJson['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+        img_url = sourceJson['items'][0]['snippet']['thumbnails']['default']['url']
+        print(f"Found Uploads ID from channelID {channelID}: {uploadsID}")
+        return uploadsID, img_url
+    except IndexError:
+        print(f"Could Not Find Channel {channelID}")
+        pp.pprint(sourceJson)
+        return None, None
 
 def getUploadPlaylist(identifier, maxResults=10):
     is_user = isUser(identifier)
+    print(identifier, is_user)
     if is_user:
         uploadsID, img_url = getUploadsIdFromUser(identifier)
     else:
         uploadsID, img_url = getUploadsIdFromChannelID(identifier)
-    url = f"https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId={uploadsID}&maxResults={maxResults}&key={API_KEY}"
-    source = requests.get(url).text
-    sourceJson = json.loads(source)
-    return sourceJson, img_url
+
+    if uploadsID:
+        url = f"https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId={uploadsID}&maxResults={maxResults}&key={API_KEY}"
+        source = requests.get(url).text
+        sourceJson = json.loads(source)
+        return sourceJson, img_url
+    else:
+        return None, None
 
 def getVideoDetails(videoID):
     url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={videoID}&key={API_KEY}"

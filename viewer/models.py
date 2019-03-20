@@ -68,15 +68,18 @@ class Video(db.Model):
             pass
 
     def status(self):
-        if psutil.pid_exists(self.mpvPid):
-            p = psutil.Process(self.mpvPid)
-            status = p.status()
-            if status == 'zombie':
-                self.mpvPid = -1
-                db.session.commit()
-                return False
+        if self.mpvPid:
+            if psutil.pid_exists(self.mpvPid):
+                p = psutil.Process(self.mpvPid)
+                status = p.status()
+                if status == 'zombie':
+                    self.mpvPid = -1
+                    db.session.commit()
+                    return False
+                else:
+                    return True
             else:
-                return True
+                return False
         else:
             return False
 
